@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login UI Demo</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px 16px;display:flex;align-items:center;justify-content:center;background:#fafafa;color:#262626;font-family:Arial,Helvetica,sans-serif}
+.page{width:100%;max-width:350px}.card{background:#fff;border:1px solid #dbdbdb;padding:30px 40px 24px;text-align:center}
+.brand{margin:5px 0 18px;font-family:"Brush Script MT",cursive;font-size:44px;line-height:1.2}
+.notice{font-size:12px;color:#654f12;background:#fff9e8;border:1px solid #f0d98a;padding:8px;margin:0 0 14px;line-height:1.4}
+.field{display:block;width:100%;height:38px;margin:0 0 6px;padding:9px 8px;border:1px solid #dbdbdb;border-radius:3px;background:#fafafa;font-size:12px}
+.button{width:100%;margin-top:8px;padding:9px;border:0;border-radius:8px;background:#0095f6;color:#fff;font-size:14px;font-weight:bold;cursor:pointer}
+.divider{display:flex;align-items:center;gap:18px;margin:22px 0;color:#737373;font-size:12px;font-weight:bold}.divider:before,.divider:after{content:"";height:1px;flex:1;background:#dbdbdb}
+.fake-link{display:block;margin:0 0 17px;color:#385185;font-size:13px;font-weight:bold;text-decoration:none}.forgot{color:#00376b;font-size:12px;text-decoration:none}
+#msg{min-height:18px;margin:16px 0 0;color:#16803c;font-size:12px;line-height:1.5}
+.signup{margin-top:10px;padding:22px 8px;border:1px solid #dbdbdb;background:#fff;text-align:center;font-size:14px}
+@media(max-width:400px){body{padding:20px 0}.card{border-left:0;border-right:0;padding-left:32px;padding-right:32px}.signup{border-left:0;border-right:0}}
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="card" aria-label="Login UI learning demo">
+    <h1 class="brand">Login Demo</h1>
+    <p class="notice">Learning demo only. Do not enter real account details. This page never sends or stores the text entered in these fields.</p>
+    <form id="demo">
+      <input class="field" name="demo-user" placeholder="Demo username (optional)" aria-label="Demo username" autocomplete="off">
+      <input class="field" name="demo-pass" type="password" placeholder="Demo password (optional)" aria-label="Demo password" autocomplete="new-password">
+      <button class="button" type="submit">Test login attempt</button>
+    </form>
+    <p id="msg" role="status" aria-live="polite"></p>
+    <div class="divider">OR</div>
+    <a class="fake-link" href="#" id="other">Other demo option</a>
+    <a class="forgot" href="#" id="forgot">Help</a>
+  </section>
+  <section class="signup">Educational UI prototype — not affiliated with Instagram.</section>
+</main>
+<script>
+/*
+  Set API_BASE_URL to your deployed backend URL, without a trailing slash.
+  Example: https://your-service.onrender.com
+*/
+const API_BASE_URL = "PASTE_YOUR_BACKEND_URL_HERE";
+const msg = document.getElementById("msg");
+
+document.getElementById("demo").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  // Intentionally do NOT read or transmit either input value.
+  // Only a generic event is sent to the backend.
+  const button = e.currentTarget.querySelector("button");
+  button.disabled = true;
+  msg.textContent = "Sending demo event…";
+
+  try {
+    if (API_BASE_URL === "PASTE_YOUR_BACKEND_URL_HERE") {
+      msg.textContent = "Demo works locally. Add your backend URL to enable Telegram alerts.";
+      return;
+    }
+    const response = await fetch(`${API_BASE_URL}/api/demo-attempt`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event: "demo_login_attempt" })
+    });
+    if (!response.ok) throw new Error("Notification service unavailable");
+    msg.textContent = "Demo attempt recorded. Notification request sent.";
+    e.currentTarget.reset();
+  } catch (_) {
+    msg.textContent = "Could not reach the notification service. Check the backend URL and try again.";
+  } finally {
+    button.disabled = false;
+  }
+});
+
+["other", "forgot"].forEach(id => {
+  document.getElementById(id).addEventListener("click", e => {
+    e.preventDefault();
+    msg.textContent = "This demo option is not connected.";
+  });
+});
+</script>
+</body>
+</html>
